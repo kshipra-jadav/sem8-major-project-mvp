@@ -4,19 +4,17 @@ import google.generativeai as genai
 from PIL import Image
 import PIL.PngImagePlugin
 
-genai.configure(api_key="")
+genai.configure(api_key="AIzaSyDXCmwp6bBeP1ztyK3EKF5BjnsYIx1Tpsg")
 
 model = genai.GenerativeModel("gemini-pro-vision")
 
-cap = cv2.VideoCapture("/dev/video0")
+cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)
 
 cv2.namedWindow("Window")
-
+cap.set(cv2.CAP_PROP_FPS, 30)
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-
-
-
 
 
 while cap.isOpened():
@@ -27,9 +25,9 @@ while cap.isOpened():
     
     fps = f"{1 / (time.perf_counter() - start):.2f} FPS"
     
-    #print(fps)
+    print(fps)
     
-    key = cv2.waitKey(25)
+    key = cv2.waitKey(1)
     
     if key == 27:
         cv2.destroyAllWindows()
