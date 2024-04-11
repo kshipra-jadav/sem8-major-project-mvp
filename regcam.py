@@ -25,7 +25,7 @@ while cap.isOpened():
     
     fps = f"{1 / (time.perf_counter() - start):.2f} FPS"
     
-    print(fps)
+    #print(fps)
     
     key = cv2.waitKey(1)
     
@@ -37,6 +37,7 @@ while cap.isOpened():
     
     elif key == 32:
         print('capturing image and sending to Gemini')
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(frame)
         prompt = "Please tell me about the contents of this image and tell me exactly what is written inside the image"
         
