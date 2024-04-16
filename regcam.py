@@ -3,6 +3,13 @@ import time
 import google.generativeai as genai
 from PIL import Image
 import PIL.PngImagePlugin
+from tts import text_to_speech
+import RPi.GPIO as GPIO
+
+TOUCH_PIN = 18
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TOUCH_PIN, GPIO.IN)
 
 genai.configure(api_key="AIzaSyDXCmwp6bBeP1ztyK3EKF5BjnsYIx1Tpsg")
 
@@ -17,7 +24,7 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
 
-while cap.isOpened():
+while True:
     start = time.perf_counter()
     _, frame = cap.read()
     
@@ -27,22 +34,19 @@ while cap.isOpened():
     
     #print(fps)
     
-    key = cv2.waitKey(1)
-    
-    if key == 27:
-        cv2.destroyAllWindows()
-        break
-    elif key == -1:
-        continue
-    
-    elif key == 32:
-        print('capturing image and sending to Gemini')
+    if GPIO.input(TOUCH_PIN):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(frame)
         prompt = "Please tell me about the contents of this image and tell me exactly what is written inside the image"
-        
+        ocr_prompt = "Perform OCR on the given image. Do not summarize the content. Give back to me text as you have detected it."
         response = model.generate_content([prompt, img], stream=True)
         response.resolve()
         
         print(response.text)
+        text_to_speech(response.text)
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.destroyAllWindows()
+        break
+        
 cap.release()
