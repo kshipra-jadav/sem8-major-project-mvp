@@ -4,6 +4,7 @@ import google.generativeai as genai
 from PIL import Image
 import PIL.PngImagePlugin
 from tts import text_to_speech
+from mic import speech_to_text
 import RPi.GPIO as GPIO
 
 TOUCH_PIN = 18
@@ -23,6 +24,22 @@ cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc("M", "J", "P", "G"))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
+def send_to_ai(frame, prompt):
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(frame)
+    
+    # prompt = "Please tell me about the contents of this image and tell me exactly what is written inside the image"
+    # ocr_prompt = "Perform OCR on the given image. Do not summarize the content. Give back to me text as you have detected it."
+    
+    text_to_speech("Processing ... ")
+    
+    response = model.generate_content([prompt, img], stream=True)
+    response.resolve()
+    
+    print(response.text)
+    
+    text_to_speech(response.text)
+
 
 while True:
     start = time.perf_counter()
@@ -35,15 +52,11 @@ while True:
     #print(fps)
     
     if GPIO.input(TOUCH_PIN):
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        img = Image.fromarray(frame)
-        prompt = "Please tell me about the contents of this image and tell me exactly what is written inside the image"
-        ocr_prompt = "Perform OCR on the given image. Do not summarize the content. Give back to me text as you have detected it."
-        response = model.generate_content([prompt, img], stream=True)
-        response.resolve()
+        text_to_speech("Hello there. I'm Akshi. How Can I Assist You?")
+        text = speech_to_text()
+        send_to_ai(frame, text)
         
-        print(response.text)
-        text_to_speech(response.text)
+        
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
