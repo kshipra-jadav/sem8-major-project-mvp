@@ -14,4 +14,16 @@ def image_ocr(frame):
     
     texts = response.text_annotations
     
-    print(texts)
+    final_str = ""
+    
+    for text in texts:
+        print(f"text {text}")
+        final_str += text.description + " "
+            
+    print(final_str)
+    
+    return final_str
+
+if __name__ == '__main__':
+    img = cv2.imread('img.jpg')
+    image_ocr(img)

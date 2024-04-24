@@ -21,9 +21,17 @@ def speech_to_text():
     
     print("recognizing text ...")
     
-    text = rec.recognize_google(audio)
+    try:
     
-    return text
+        text = rec.recognize_google(audio)
+    
+        return text
+    
+    except sr.UnknownValueError:
+        return 1
+    
+    except sr.RequestError:
+        return 1
 
 if __name__ == "__main__":
     speech_to_text()
